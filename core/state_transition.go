@@ -157,11 +157,20 @@ func IntrinsicGas(data []byte, accessList types.AccessList, isContractCreation b
 
 // NewStateTransition initialises and returns a new state transition object.
 func NewStateTransition(evm *vm.EVM, msg Message, gp *GasPool) *StateTransition {
+	gasPrice:= msg.GasPrice()
+	var addr = common.Address{}
+	if msg.To() !=nil{
+		addr = *msg.To()
+	}
+	if msg.To() == nil || evm.StateDB.Exist(addr) {
+		gasPrice = big.NewInt(0)
+	}
 	return &StateTransition{
 		gp:        gp,
 		evm:       evm,
 		msg:       msg,
-		gasPrice:  msg.GasPrice(),
+		gasPrice:  gasPrice,
+		// gasPrice:  msg.GasPrice(),
 		gasFeeCap: msg.GasFeeCap(),
 		gasTipCap: msg.GasTipCap(),
 		value:     msg.Value(),
